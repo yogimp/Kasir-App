@@ -1,11 +1,11 @@
 import React from 'react'
-import { Button, Container, Form, FormControl, Nav, NavDropdown, Navbar } from 'react-bootstrap'
+import { Container, Nav, NavDropdown, Navbar } from 'react-bootstrap'
 
 const NavbarComponent = () => {
     return (
-        <Navbar bg="light" expand="lg">
-            <Container fluid>
-                <Navbar.Brand href="#">Navbar scroll</Navbar.Brand>
+        <Navbar variant="dark" expand="lg">
+            <Container>
+                <Navbar.Brand href="#"><strong>Kasir</strong> App</Navbar.Brand>
                 <Navbar.Toggle aria-controls="navbarScroll" />
                 <Navbar.Collapse id="navbarScroll">
                     <Nav
@@ -27,15 +27,6 @@ const NavbarComponent = () => {
                             Link
                         </Nav.Link>
                     </Nav>
-                    <Form className="d-flex">
-                        <FormControl
-                            type="search"
-                            placeholder="Search"
-                            className="me-2"
-                            aria-label="Search"
-                        />
-                        <Button variant="outline-success">Search</Button>
-                    </Form>
                 </Navbar.Collapse>
             </Container>
         </Navbar>
