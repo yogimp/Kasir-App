@@ -3,6 +3,7 @@ import { Col, Container, Row } from "react-bootstrap";
 import { Hasil, ListCategories, NavbarComponent, Menus } from "./components";
 import { API_URL } from "./utils/constants";
 import axios from 'axios';
+import swal from 'sweetalert';
 
 export default class App extends Component {
 
@@ -11,7 +12,8 @@ export default class App extends Component {
 
     this.state = {
       menus: [],
-      categorieSelected: 'Makanan'
+      categorieSelected: 'Makanan',
+      keranjangs: [],
     }
   }
 
@@ -23,8 +25,30 @@ export default class App extends Component {
       })
       .catch(err => {
         console.log(err);
-        
+    })
+
+    axios.get(API_URL + '/keranjangs')
+      .then(res => {
+        const keranjangs = res.data;
+        this.setState({ keranjangs });
       })
+      .catch(err => {
+        console.log(err);
+    })
+
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if(this.state.keranjangs !== prevState.keranjangs) {
+      axios.get(API_URL + '/keranjangs')
+        .then(res => {
+          const keranjangs = res.data;
+          this.setState({ keranjangs });
+        })
+        .catch(err => {
+          console.log(err);
+      })
+    }
   }
 
   changeCategorie = (value) => {
@@ -40,14 +64,68 @@ export default class App extends Component {
       })
       .catch(err => {
         console.log(err);
-        
-    })
+
+      })
 
   }
 
-  render() { 
+  masukKeranjang = (value) => {
 
-    const { menus, categorieSelected } = this.state;
+    axios.get(API_URL + '/keranjangs?product.id=' + value.id)
+      .then(res => {
+        if (res.data.length === 0) {
+          const keranjang = {
+            jumlah: 1,
+            totalHarga: value.harga,
+            product: value
+          }
+
+          axios.post(API_URL + '/keranjangs', keranjang)
+            .then(res => {
+              swal({
+                title: "Success",
+                text: "Succes put your order " + keranjang.product.nama,
+                icon: "success",
+                button: false,
+                timer: 2000
+              });
+            })
+            .catch(err => {
+              console.log(err);
+
+          })
+        } else {
+          const keranjang = {
+            jumlah: res.data[0].jumlah + 1,
+            totalHarga: res.data[0].totalHarga + value.harga,
+            product: value
+          }
+
+          axios.put(API_URL + '/keranjangs/'+ res.data[0].id, keranjang)
+          .then(res => {
+            swal({
+              title: "Success",
+              text: "Succes put your order " + keranjang.product.nama,
+              icon: "success",
+              button: false,
+              timer: 2000
+            });
+          })
+          .catch(err => {
+            console.log(err);
+          })
+        }
+      })
+      .catch(err => {
+        console.log(err);
+
+      })
+
+
+  }
+
+  render() {
+    const { menus, categorieSelected, keranjangs } = this.state;
 
     return (
       <div className="App">
@@ -61,14 +139,15 @@ export default class App extends Component {
                 <hr />
                 <Row>
                   {menus && menus.map(menu => (
-                    <Menus 
+                    <Menus
                       key={menu.id}
                       menu={menu}
+                      masukKeranjang={this.masukKeranjang}
                     />
                   ))}
                 </Row>
               </Col>
-              <Hasil />
+              <Hasil keranjangs={keranjangs}/>
             </Row>
           </Container>
         </div>
